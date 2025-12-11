@@ -49,7 +49,6 @@ if (isset($_POST['simpan'])) {
                                 <option value="Pidana Umum">Pidana Umum</option>
                                 <option value="Pidana Khusus">Pidana Khusus</option>
                                 <option value="Perdata">Perdata</option>
-                                <option value="Narkotika">Narkotika</option>
                             </select>
                         </div>
                     </div>
