@@ -4,7 +4,7 @@ include 'admin/koneksi.php';
 
 // Jika sudah login, redirect ke dashboard/admin page
 if (isset($_SESSION['admin'])) {
-    header("Location: admin/dashboard.php");
+    header("Location: admin/index.php");
     exit;
 }
 
@@ -23,7 +23,7 @@ if (isset($_POST['login'])) {
         if (password_verify($password, $admin['password'])) {
             // Login berhasil, simpan session
             $_SESSION['admin'] = $admin['username'];
-            header("Location: admin/dashboard.php");
+            header("Location: admin/index.php");
             exit;
         } else {
             $error = "Password salah!";
@@ -94,7 +94,8 @@ if (isset($_POST['login'])) {
     <form method="POST">
         <div class="mb-3">
             <label class="form-label">Username</label>
-            <input type="text" name="username" class="form-control" required autofocus>
+            <input type="text" name="username" class="form-control" required autofocus 
+            lue="<?= isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>">
         </div>
         <div class="mb-3">
             <label class="form-label">Password</label>
