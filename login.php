@@ -41,7 +41,6 @@ if (isset($_POST['login'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Admin - Peta Kasus Kabupaten Gorontalo</title>
 
-    <!-- BOOTSTRAP -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
@@ -95,19 +94,23 @@ if (isset($_POST['login'])) {
         <div class="mb-3">
             <label class="form-label">Username</label>
             <input type="text" name="username" class="form-control" required autofocus 
-            lue="<?= isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>">
+            value="<?= isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>">
         </div>
         <div class="mb-3">
             <label class="form-label">Password</label>
             <input type="password" name="password" class="form-control" required>
         </div>
-        <button type="submit" name="login" class="btn btn-primary w-100">
+        
+        <button type="submit" name="login" class="btn btn-primary w-100 mb-2">
             <i class="bi bi-box-arrow-in-right"></i> Login
         </button>
+
+        <a href="index.php" class="btn btn-outline-secondary w-100">
+            <i class="bi bi-arrow-left"></i> Kembali ke Beranda
+        </a>
     </form>
 </div>
 
-<!-- BOOTSTRAP JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

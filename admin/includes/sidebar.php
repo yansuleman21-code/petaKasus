@@ -36,9 +36,9 @@
     </li>
 
     <li class="nav-item">
-        <a class="nav-link" href="../desa.php" target="_blank">
+        <a class="nav-link" href="data_desa.php">
             <i class="fas fa-fw fa-map"></i>
-            <span>Data Desa</span></a>
+            <span>Kelola Data Desa</span></a>
     </li>
 
     <hr class="sidebar-divider d-none d-md-block">
@@ -87,4 +87,3 @@
             </ul>
 
         </nav>
-        ```
