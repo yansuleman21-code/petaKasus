@@ -32,7 +32,7 @@ if (isset($_POST['update'])) {
         WHERE id_kasus='$id'");
 
     if ($update) {
-        echo "<script>alert('Data berhasil diupdate!'); window.location='../kasus.php';</script>";
+        echo "<script>alert('Data berhasil diupdate!'); window.location='data_kasus.php';</script>";
     } else {
         echo "<script>alert('Gagal update data');</script>";
     }

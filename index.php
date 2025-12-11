@@ -2,257 +2,136 @@
 include 'admin/koneksi.php';
 include 'includes/header.php';
 
-// 1. Ambil Data Desa (Titik Kantor Desa)
-$q_desa = mysqli_query($koneksi, "SELECT * FROM desa WHERE latitude != '' AND longitude != ''");
-$desa_data = [];
-while($d = mysqli_fetch_assoc($q_desa)) {
-    // Hitung jumlah kasus per desa
-    $id_desa = $d['id_desa'];
-    $jml_kasus = mysqli_num_rows(mysqli_query($koneksi, "SELECT * FROM kasus WHERE desa_kasus='$id_desa'"));
-    $d['jumlah_kasus'] = $jml_kasus;
-    $desa_data[] = $d;
-}
+if(isset($_POST['kirim'])) {
+    $nama = htmlspecialchars($_POST['nama']);
+    $hp = htmlspecialchars($_POST['hp']);
+    $judul = htmlspecialchars($_POST['judul']);
+    $deskripsi = htmlspecialchars($_POST['deskripsi']);
+    $kategori = $_POST['kategori'];
+    $lat = $_POST['latitude'];
+    $long = $_POST['longitude'];
 
-// 2. Ambil Data Kasus (Titik Kejadian)
-$q_kasus = mysqli_query($koneksi, "SELECT kasus.*, desa.nama_desa FROM kasus JOIN desa ON kasus.desa_kasus=desa.id_desa");
-$kasus_data = [];
-while($k = mysqli_fetch_assoc($q_kasus)) {
-    $kasus_data[] = $k;
+    // Upload Foto
+    $foto = "";
+    if(!empty($_FILES['foto']['name'])) {
+        $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
+        $foto = time() . "_" . rand(1000,9999) . "." . $ext;
+        move_uploaded_file($_FILES['foto']['tmp_name'], 'assets/img/laporan/' . $foto);
+    }
+
+    $sql = "INSERT INTO laporan_masyarakat (nama_pelapor, no_hp, judul_laporan, deskripsi, kategori, foto, latitude, longitude) 
+            VALUES ('$nama', '$hp', '$judul', '$deskripsi', '$kategori', '$foto', '$lat', '$long')";
+            
+    if(mysqli_query($koneksi, $sql)) {
+        echo "<script>alert('Terima kasih! Laporan Anda berhasil dikirim dan akan diverifikasi.'); window.location='index.php';</script>";
+    } else {
+        echo "<script>alert('Gagal mengirim laporan: " . mysqli_error($koneksi) . "');</script>";
+    }
 }
 ?>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-    /* Layout Profesional Full Screen Map */
-    body { overflow-x: hidden; }
-    .main-container {
-        position: relative;
-        height: 90vh; /* Tinggi Peta */
-        width: 100%;
-    }
-    #map {
-        height: 100%;
-        width: 100%;
-        z-index: 1;
-    }
-    
-    /* Floating Info Panel (Panel Melayang) */
-    .info-panel {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        width: 350px;
-        max-height: 85vh;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(5px);
-        z-index: 999; /* Di atas peta */
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-        overflow-y: auto;
-        padding: 20px;
-        transition: transform 0.3s ease;
-    }
-    
-    .info-stat-card {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 10px;
-        border-left: 4px solid #0d6efd;
-    }
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-danger text-white p-4">
+                    <h3 class="fw-bold mb-0"><i class="bi bi-megaphone-fill"></i> Lapor Pak Jaksa!</h3>
+                    <p class="mb-0 opacity-75">Sampaikan pengaduan pelanggaran hukum di sekitar Anda.</p>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data">
+                        
+                        <div class="alert alert-info border-0 d-flex align-items-center" role="alert">
+                            <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+                            <div>Identitas pelapor dirahasiakan oleh Kejaksaan.</div>
+                        </div>
 
-    /* Tombol Toggle Panel untuk Mobile */
-    .panel-toggle {
-        display: none;
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1000;
-    }
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Nama Lengkap</label>
+                                <input type="text" name="nama" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">No. HP / WhatsApp</label>
+                                <input type="text" name="hp" class="form-control" required>
+                            </div>
+                        </div>
 
-    @media (max-width: 768px) {
-        .info-panel {
-            width: 90%;
-            left: 5%;
-            top: auto;
-            bottom: -100%; /* Sembunyi dulu */
-            transition: bottom 0.4s;
-        }
-        .info-panel.active {
-            bottom: 20px;
-        }
-        .panel-toggle { display: block; }
-    }
-</style>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Judul Laporan</label>
+                            <input type="text" name="judul" class="form-control" placeholder="Contoh: Dugaan Pungli di Pasar X" required>
+                        </div>
 
-<div class="main-container">
-    <div id="map"></div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Kategori</label>
+                                <select name="kategori" class="form-select" required>
+                                    <option value="">- Pilih Kategori -</option>
+                                    <option value="Pidana Umum">Pidana Umum</option>
+                                    <option value="Pidana Khusus">Pidana Khusus (Korupsi)</option>
+                                    <option value="Narkotika">Narkotika</option>
+                                    <option value="Ketertiban Umum">Ketertiban Umum</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Bukti Foto</label>
+                                <input type="file" name="foto" class="form-control" accept="image/*">
+                            </div>
+                        </div>
 
-    <div class="info-panel" id="infoPanel">
-        <h4 class="fw-bold text-primary mb-3"><i class="bi bi-shield-fill-check"></i> Dashboard Kasus</h4>
-        
-        <div class="info-stat-card">
-            <h2 class="fw-bold mb-0"><?= count($kasus_data) ?></h2>
-            <small class="text-muted">Total Kasus Terlapor</small>
-        </div>
-        
-        <div class="info-stat-card" style="border-left-color: #198754;">
-            <h2 class="fw-bold mb-0"><?= count($desa_data) ?></h2>
-            <small class="text-muted">Desa Terpantau</small>
-        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Deskripsi Kejadian</label>
+                            <textarea name="deskripsi" class="form-control" rows="4" placeholder="Ceritakan kronologi kejadian secara detail..." required></textarea>
+                        </div>
 
-        <hr>
+                        <hr class="my-4">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-danger">Lokasi Kejadian (Wajib)</label>
+                            <div class="input-group mb-2">
+                                <button type="button" class="btn btn-outline-danger" onclick="getLocation()">
+                                    <i class="bi bi-geo-alt-fill"></i> Ambil Lokasi Saya
+                                </button>
+                                <input type="text" id="lat" name="latitude" class="form-control bg-light" placeholder="Latitude" readonly required>
+                                <input type="text" id="lng" name="longitude" class="form-control bg-light" placeholder="Longitude" readonly required>
+                            </div>
+                            <small class="text-muted">Pastikan GPS Anda aktif lalu klik tombol di atas.</small>
+                        </div>
 
-        <h6 class="fw-bold mb-3">Detail Wilayah</h6>
-        <div id="dynamic-content">
-            <p class="text-muted small">Klik ikon <b>Kantor Desa</b> (Biru) atau <b>Titik Kasus</b> (Merah) di peta untuk melihat detail informasi di sini.</p>
-        </div>
-
-        <div class="d-grid gap-2 mt-4">
-            <button class="btn btn-outline-primary btn-sm" onclick="resetView()">
-                <i class="bi bi-globe"></i> Reset Tampilan Peta
-            </button>
-            <button class="btn btn-success btn-sm" onclick="locateUser()">
-                <i class="bi bi-geo-alt"></i> Lokasi Saya
-            </button>
+                        <button type="submit" name="kirim" class="btn btn-danger w-100 fw-bold py-3 mt-3 shadow-sm">
+                            <i class="bi bi-send-fill"></i> KIRIM LAPORAN
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-
-    <button class="btn btn-primary rounded-pill panel-toggle shadow" onclick="togglePanel()">
-        <i class="bi bi-list"></i> Lihat/Tutup Info
-    </button>
 </div>
 
 <script>
-    var dataDesa = <?= json_encode($desa_data) ?>;
-    var dataKasus = <?= json_encode($kasus_data) ?>;
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+    } else { 
+        alert("Browser ini tidak mendukung Geolocation.");
+    }
+}
+
+function showPosition(position) {
+    document.getElementById("lat").value = position.coords.latitude;
+    document.getElementById("lng").value = position.coords.longitude;
+    alert("Lokasi berhasil dikunci!");
+}
+
+function showError(error) {
+    switch(error.code) {
+        case error.PERMISSION_DENIED:
+            alert("Mohon izinkan akses lokasi di browser Anda.");
+            break;
+        default:
+            alert("Terjadi kesalahan saat mengambil lokasi.");
+    }
+}
 </script>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-    // 1. SETUP MAP
-    var map = L.map('map', { zoomControl: false }).setView([0.626, 122.986], 11);
-    L.control.zoom({ position: 'topright' }).addTo(map);
-
-    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: 'OSM' }).addTo(map);
-    var satelit = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Esri' });
-
-    L.control.layers({ "Peta Jalan": osm, "Satelit": satelit }).addTo(map);
-
-    // 2. ICON MARKERS
-    var iconDesa = L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-        iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
-    });
-
-    var iconKasus = L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-        iconSize: [20, 32], iconAnchor: [10, 32], popupAnchor: [1, -24]
-    });
-
-    // 3. RENDER DESA (TITIK PUSAT)
-    dataDesa.forEach(d => {
-        if(d.latitude && d.longitude) {
-            var marker = L.marker([d.latitude, d.longitude], {icon: iconDesa}).addTo(map);
-            
-            // Label Nama Desa Permanen (Kecil)
-            marker.bindTooltip(d.nama_desa, {permanent: true, direction: 'bottom', className: 'bg-transparent border-0 text-primary fw-bold'});
-
-            // Klik Desa
-            marker.on('click', () => {
-                map.flyTo([d.latitude, d.longitude], 15);
-                showDesaInfo(d);
-            });
-        }
-    });
-
-    // 4. RENDER KASUS (TITIK MERAH)
-    dataKasus.forEach(k => {
-        if(k.latitude && k.longitude) {
-            var marker = L.marker([k.latitude, k.longitude], {icon: iconKasus}).addTo(map);
-            marker.bindPopup(`<b>${k.judul_kasus}</b><br>${k.jenis_kasus}`);
-            
-            marker.on('click', () => {
-                showKasusInfo(k);
-            });
-        }
-    });
-
-    // 5. FUNGSI DINAMIS INFO PANEL
-    function showDesaInfo(data) {
-        var html = `
-            <div class="card border-primary mb-3">
-                <div class="card-header bg-primary text-white py-2">Kantor Desa</div>
-                <div class="card-body py-2">
-                    <h5 class="card-title fw-bold">${data.nama_desa}</h5>
-                    <p class="card-text small">${data.deskripsi || 'Tidak ada deskripsi.'}</p>
-                    <span class="badge bg-warning text-dark">Total Kasus: ${data.jumlah_kasus}</span>
-                </div>
-            </div>
-            <h6>Daftar Kasus di Sini:</h6>
-            <ul class="list-group list-group-flush small">`;
-
-        // Filter kasus di desa ini
-        var kasusDiDesa = dataKasus.filter(k => k.desa_kasus == data.id_desa);
-        
-        if(kasusDiDesa.length > 0){
-            kasusDiDesa.forEach(k => {
-                html += `<li class="list-group-item px-0">
-                    <i class="bi bi-exclamation-circle text-danger"></i> 
-                    <b>${k.judul_kasus}</b> <br> 
-                    <span class="text-muted">${k.tanggal}</span>
-                </li>`;
-            });
-        } else {
-            html += `<li class="list-group-item text-muted">Belum ada kasus tercatat.</li>`;
-        }
-        
-        html += `</ul>`;
-        document.getElementById('dynamic-content').innerHTML = html;
-        openPanelMobile();
-    }
-
-    function showKasusInfo(data) {
-        var html = `
-            <div class="alert alert-danger">
-                <h6 class="alert-heading fw-bold"><i class="bi bi-exclamation-triangle"></i> Detail Kasus</h6>
-                <hr>
-                <h5 class="fw-bold">${data.judul_kasus}</h5>
-                <span class="badge bg-secondary mb-2">${data.jenis_kasus}</span>
-                <p class="mb-0 small">${data.deskripsi}</p>
-                <hr>
-                <small class="text-muted">Lokasi: ${data.wilayah} (${data.nama_desa})</small><br>
-                <small class="text-muted">Tanggal: ${data.tanggal}</small>
-            </div>
-            <a href="detail_kasus.php?id=${data.id_kasus}" class="btn btn-primary btn-sm w-100 mt-2">Lihat Halaman Detail</a>
-        `;
-        document.getElementById('dynamic-content').innerHTML = html;
-        openPanelMobile();
-    }
-
-    function resetView() {
-        map.setView([0.626, 122.986], 11);
-        document.getElementById('dynamic-content').innerHTML = `<p class="text-muted small">Klik ikon <b>Kantor Desa</b> (Biru) atau <b>Titik Kasus</b> (Merah) di peta untuk melihat detail informasi di sini.</p>`;
-    }
-
-    // Fungsi Mobile
-    function togglePanel() {
-        document.getElementById('infoPanel').classList.toggle('active');
-    }
-    function openPanelMobile() {
-        document.getElementById('infoPanel').classList.add('active');
-    }
-
-    // Lokasi Saya
-    function locateUser() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                var lat = pos.coords.latitude;
-                var lng = pos.coords.longitude;
-                L.marker([lat, lng]).addTo(map).bindPopup("Lokasi Anda").openPopup();
-                map.setView([lat, lng], 16);
-            });
-        }
-    }
-</script>
+<?php include 'includes/footer.php'; ?>

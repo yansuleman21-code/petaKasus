@@ -21,7 +21,7 @@ if (isset($_POST['simpan'])) {
               VALUES ('$judul', '$jenis', '$desa', '$tanggal', '$deskripsi', '$wilayah', '$instansi', '$status', '$lat', '$long')";
 
     if (mysqli_query($koneksi, $query)) {
-        echo "<script>alert('Data berhasil disimpan!'); window.location='../kasus.php';</script>";
+        echo "<script>alert('Data berhasil disimpan!'); window.location='data_kasus.php';</script>";
     } else {
         echo "<script>alert('Gagal menyimpan data: " . mysqli_error($koneksi) . "');</script>";
     }
