@@ -9,6 +9,7 @@ if (isset($_POST['simpan'])) {
     $long = $_POST['longitude'];
     $desc = mysqli_real_escape_string($koneksi, $_POST['deskripsi']);
 
+    // QUERY SEDERHANA: Hanya simpan desa dan koordinat
     $simpan = mysqli_query($koneksi, "INSERT INTO desa (nama_desa, latitude, longitude, deskripsi) VALUES ('$nama', '$lat', '$long', '$desc')");
     
     if ($simpan) {
@@ -30,6 +31,7 @@ if (isset($_POST['simpan'])) {
                     <label>Nama Desa</label>
                     <input type="text" name="nama" class="form-control" required placeholder="Contoh: Desa Pone">
                 </div>
+                
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -44,10 +46,12 @@ if (isset($_POST['simpan'])) {
                         </div>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label>Deskripsi Singkat Desa</label>
                     <textarea name="deskripsi" class="form-control" rows="3"></textarea>
                 </div>
+
                 <button type="submit" name="simpan" class="btn btn-primary">Simpan Desa</button>
                 <a href="data_desa.php" class="btn btn-secondary">Kembali</a>
             </form>

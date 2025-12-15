@@ -2,28 +2,28 @@
     <tr>
         <th>No</th>
         <th>Nama Desa</th>
-        <th>Kecamatan</th> <th>Penduduk</th>  <th>Koordinat</th>
+        <th>Koordinat</th>
         <th>Aksi</th>
     </tr>
 </thead>
 <tbody>
     <?php
     $no = 1;
-    // Pastikan kolom ini sudah ada di DB
-    $query = mysqli_query($koneksi, "SELECT * FROM desa ORDER BY kecamatan ASC, nama_desa ASC");
+    // Hapus ORDER BY kecamatan, ganti jadi nama_desa saja
+    $query = mysqli_query($koneksi, "SELECT * FROM desa ORDER BY nama_desa ASC");
     while ($d = mysqli_fetch_assoc($query)) {
     ?>
     <tr>
         <td><?= $no++ ?></td>
         <td><?= $d['nama_desa'] ?></td>
-        <td><?= $d['kecamatan'] ?></td> <td><?= number_format($d['jumlah_penduduk']) ?> Jiwa</td> <td>
+        <td>
             <?php if($d['latitude']) { ?>
                 <a href="http://maps.google.com/maps?q=<?= $d['latitude'] ?>,<?= $d['longitude'] ?>" target="_blank" class="text-primary"><i class="fas fa-map-marker-alt"></i> Cek</a>
             <?php } else { echo "-"; } ?>
         </td>
         <td>
             <a href="hapus_desa.php?id=<?= $d['id_desa'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus?')"><i class="fas fa-trash"></i></a>
-            </td>
+        </td>
     </tr>
     <?php } ?>
 </tbody>
