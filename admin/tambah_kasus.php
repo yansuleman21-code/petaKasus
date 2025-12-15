@@ -121,7 +121,26 @@ if (isset($_POST['simpan'])) {
 
                 <button type="submit" name="simpan" class="btn btn-primary">Simpan Data</button>
                 <a href="../kasus.php" class="btn btn-secondary">Batal</a>
+                <div class="row">
 
+                <div class="col-md-6">
+                    <div class="form-group">
+                    <label>Nomor Perkara / Register</label>
+                    <input type="text" name="no_perkara" class="form-control" placeholder="Contoh: PDM-12/GTLO/01/2025">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                <label>Pasal Dakwaan</label>
+                <input type="text" name="pasal" class="form-control" placeholder="Contoh: 362 KUHP">
+            </div>
+    </div>
+</div>
+
+<div class="form-group">
+    <label>Nama Jaksa Penuntut Umum (JPU)</label>
+    <input type="text" name="jpu" class="form-control" placeholder="Masukkan nama JPU yang menangani">
+</div>
             </form>
         </div>
     </div>
