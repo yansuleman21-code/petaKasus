@@ -1,11 +1,15 @@
 <?php
 header('Content-Type: application/json');
-error_reporting(0); // Matikan error agar JSON tetap bersih
+error_reporting(0); // Matikan error warning PHP agar tidak merusak format JSON
 include 'koneksi.php';
 
-if (!$koneksi) { echo json_encode([]); exit; }
+// Jika koneksi gagal, kembalikan array kosong
+if (!$koneksi) { 
+    echo json_encode([]); 
+    exit; 
+}
 
-// QUERY BERSIH: Tidak mengambil kolom kecamatan/penduduk
+// Query mengambil data statistik per desa
 $query = mysqli_query($koneksi, "
     SELECT 
         d.id_desa, 
@@ -22,6 +26,7 @@ $query = mysqli_query($koneksi, "
 
 $data = [];
 while ($row = mysqli_fetch_assoc($query)) {
+    // Pastikan nama desa UPPERCASE dan di-trim agar cocok dengan GeoJSON
     $nama_clean = strtoupper(trim($row['nama_desa'])); 
     $data[$nama_clean] = $row;
 }
