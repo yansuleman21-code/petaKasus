@@ -2,41 +2,49 @@
 // admin/import_geojson.php
 include 'koneksi.php';
 
-// Lokasi file GeoJSON
 $file_path = '../assets/geo/75.01_kelurahan.geojson';
 
 if (!file_exists($file_path)) {
     die("File GeoJSON tidak ditemukan di: <b>$file_path</b>");
 }
 
+// Tombol Aksi
+if (!isset($_GET['aksi'])) {
+    echo "<h3>Import Data Desa (Full 205 Data)</h3>";
+    echo "<p>Script ini akan <b>MENGHAPUS SEMUA DATA DESA LAMA</b> dan menggantinya dengan 205 data baru dari file Peta.</p>";
+    echo "<p>Jika ada desa dengan nama sama (wilayah terpisah), akan otomatis ditambahkan angka di belakang namanya.</p>";
+    echo "<a href='?aksi=import' onclick=\"return confirm('Yakin ingin mereset dan import ulang? Data desa lama akan hilang.')\" style='background:red; color:white; padding:10px; text-decoration:none; font-weight:bold;'>MULAI IMPORT ULANG & RESET</a>";
+    echo "<br><br><a href='data_desa.php'>Kembali</a>";
+    exit;
+}
+
+// PROSES IMPORT
 $json_content = file_get_contents($file_path);
 $data = json_decode($json_content, true);
 
-echo "<h3>Proses Sinkronisasi Data Desa & Koordinat...</h3>";
-echo "<a href='data_desa.php'>Kembali ke Data Desa</a><hr>";
+// 1. KOSONGKAN TABEL DESA DULU (RESET)
+mysqli_query($koneksi, "TRUNCATE TABLE desa");
 
-$tambah = 0;
-$update = 0;
+echo "<h3>Proses Import Sedang Berjalan...</h3>";
+
+$berhasil = 0;
 $gagal = 0;
 
 foreach ($data['features'] as $feature) {
-    // 1. Ambil Nama Desa & Bersihkan
-    $nama_desa = mysqli_real_escape_string($koneksi, strtoupper(trim($feature['properties']['nm_kelurahan'])));
+    // Ambil Nama Desa
+    $nama_asal = strtoupper(trim($feature['properties']['nm_kelurahan']));
+    $nama_clean = mysqli_real_escape_string($koneksi, $nama_asal);
     
-    // 2. Hitung Titik Tengah (Centroid)
+    // Hitung Titik Tengah
     $coords = [];
     $type = $feature['geometry']['type'];
-    
     if ($type == 'Polygon') {
         $coords = $feature['geometry']['coordinates'][0];
     } elseif ($type == 'MultiPolygon') {
         $coords = $feature['geometry']['coordinates'][0][0];
     }
 
-    $total_lat = 0;
-    $total_lng = 0;
-    $count_points = 0;
-
+    $total_lat = 0; $total_lng = 0; $count_points = 0;
     if (!empty($coords)) {
         foreach ($coords as $point) {
             $total_lng += $point[0]; 
@@ -46,43 +54,43 @@ foreach ($data['features'] as $feature) {
         $avg_lat = $total_lat / $count_points;
         $avg_lng = $total_lng / $count_points;
     } else {
-        $avg_lat = 0;
-        $avg_lng = 0;
+        $avg_lat = 0; $avg_lng = 0;
     }
 
-    // 3. Cek Database
-    $cek = mysqli_query($koneksi, "SELECT id_desa FROM desa WHERE nama_desa = '$nama_desa'");
+    // 2. CEK APAKAH NAMA INI SUDAH ADA DI DB?
+    // Kita gunakan loop untuk mengecek nama_desa, nama_desa (2), nama_desa (3), dst.
+    $nama_final = $nama_clean;
+    $counter = 1;
     
-    if (mysqli_num_rows($cek) > 0) {
-        // --- JIKA SUDAH ADA, UPDATE KOORDINATNYA ---
-        $q_update = "UPDATE desa SET latitude = '$avg_lat', longitude = '$avg_lng' WHERE nama_desa = '$nama_desa'";
-        if (mysqli_query($koneksi, $q_update)) {
-            echo "<small style='color:blue'>[UPDATE]</small> Koordinat <b>$nama_desa</b> diperbarui.<br>";
-            $update++;
+    while(true) {
+        $cek = mysqli_query($koneksi, "SELECT id_desa FROM desa WHERE nama_desa = '$nama_final'");
+        if (mysqli_num_rows($cek) > 0) {
+            // Jika ada, tambah counter
+            $counter++;
+            $nama_final = "$nama_clean (Bagian $counter)";
         } else {
-            echo "<small style='color:red'>[GAGAL UPDATE]</small> $nama_desa<br>";
-            $gagal++;
+            // Jika belum ada, gunakan nama ini
+            break;
         }
+    }
+
+    // 3. INSERT (SELALU INSERT, TIDAK ADA UPDATE)
+    $query = "INSERT INTO desa (nama_desa, latitude, longitude, deskripsi) 
+              VALUES ('$nama_final', '$avg_lat', '$avg_lng', 'Diimpor dari GeoJSON')";
+    
+    if (mysqli_query($koneksi, $query)) {
+        // Tampilkan pesan hanya jika itu data duplikat yang diberi nomor
+        if ($counter > 1) {
+            echo "<small style='color:blue'>[DUPLIKAT]</small> $nama_asal -> Disimpan sebagai <b>$nama_final</b><br>";
+        }
+        $berhasil++;
     } else {
-        // --- JIKA BELUM ADA, INSERT BARU ---
-        $q_insert = "INSERT INTO desa (nama_desa, latitude, longitude, deskripsi) 
-                     VALUES ('$nama_desa', '$avg_lat', '$avg_lng', 'Diimpor dari GeoJSON')";
-        
-        if (mysqli_query($koneksi, $q_insert)) {
-            echo "<small style='color:green'>[BARU]</small> Desa <b>$nama_desa</b> ditambahkan.<br>";
-            $tambah++;
-        } else {
-            echo "<small style='color:red'>[GAGAL INSERT]</small> $nama_desa<br>";
-            $gagal++;
-        }
+        echo "<small style='color:red'>[GAGAL]</small> $nama_final<br>";
+        $gagal++;
     }
 }
 
 echo "<hr><h4>Selesai!</h4>";
-echo "<ul>";
-echo "<li>Data Baru Ditambahkan: <b>$tambah</b></li>";
-echo "<li>Data Lama Diperbarui (Update Koordinat): <b>$update</b></li>";
-echo "<li>Gagal: <b>$gagal</b></li>";
-echo "</ul>";
-echo "<a href='data_desa.php' style='background:blue; color:white; padding:10px; text-decoration:none;'>Cek Data Desa Sekarang</a>";
+echo "Total Data Desa Sekarang: <b>$berhasil</b> (Seharusnya 205)<br><br>";
+echo "<a href='data_desa.php' style='background:blue; color:white; padding:10px; text-decoration:none;'>Lihat Data Desa</a>";
 ?>
