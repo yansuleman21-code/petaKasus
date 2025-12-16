@@ -72,6 +72,10 @@ include 'koneksi.php';
                                 <span class="badge badge-<?= $badge ?>"><?= $row['status_kasus'] ?></span>
                             </td>
                             <td class="text-center">
+                                <a href="proses_kasus.php?id=<?= $row['id_kasus'] ?>" class="btn btn-info btn-sm"
+                                    title="Proses Perkara">
+                                    <i class="fas fa-gavel"></i>
+                                </a>
                                 <a href="edit_kasus.php?id=<?= $row['id_kasus'] ?>" class="btn btn-warning btn-sm"
                                     title="Edit">
                                     <i class="fas fa-edit"></i>

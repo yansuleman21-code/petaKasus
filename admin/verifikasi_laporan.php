@@ -35,9 +35,11 @@ if (isset($_GET['id'])) {
             // 3. Update status laporan jadi Diverifikasi
             mysqli_query($koneksi, "UPDATE laporan_masyarakat SET status = 'Diverifikasi' WHERE id_laporan = '$id'");
 
-            echo "<script>alert('Laporan berhasil diverifikasi dan masuk ke Data Kasus! Silakan Edit Data Kasus untuk menyesuaikan Desa.'); window.location='data_kasus.php';</script>"; // Redirect ke list kasus admin bukan index frontend
+            $new_case_id = mysqli_insert_id($koneksi);
+
+            echo "<script>alert('Laporan berhasil diverifikasi! Silakan perbaiki Lokasi Desa pada halaman berikut.'); window.location='proses_kasus.php?id=$new_case_id';</script>";
         } else {
-            echo "<script>alert('Laporan berhasil diverifikasi! Data telah masuk ke Data Perkara.'); window.location='data_kasus.php';</script>";
+            echo "<script>alert('Gagal verifikasi: " . mysqli_error($koneksi) . "'); window.location='laporan_masyarakat.php';</script>";
         }
     }
 }
