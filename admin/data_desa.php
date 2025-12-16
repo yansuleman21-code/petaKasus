@@ -6,7 +6,7 @@ include 'koneksi.php';
 ?>
 
 <div class="container-fluid">
-    
+
     <h1 class="h3 mb-4 text-gray-800">Data Desa</h1>
 
     <div class="card shadow mb-4">
@@ -31,28 +31,35 @@ include 'koneksi.php';
                         $no = 1;
                         // Query Data Desa
                         $query = mysqli_query($koneksi, "SELECT * FROM desa ORDER BY nama_desa ASC");
-                        
+
                         // Cek jika data kosong
-                        if(mysqli_num_rows($query) > 0){
+                        if (mysqli_num_rows($query) > 0) {
                             while ($d = mysqli_fetch_assoc($query)) {
-                        ?>
-                        <tr>
-                            <td><?= $no++ ?></td>
-                            <td><?= htmlspecialchars($d['nama_desa']) ?></td>
-                            <td>
-                                <?php if($d['latitude']) { ?>
-                                    <a href="https://www.google.com/maps/search/?api=1&query=<?= $d['latitude'] ?>,<?= $d['longitude'] ?>" target="_blank" class="btn btn-info btn-sm" style="font-size:11px;">
-                                        <i class="fas fa-map-marker-alt"></i> Lihat Peta
-                                    </a>
-                                <?php } else { echo "-"; } ?>
-                            </td>
-                            <td>
-                                <a href="hapus_desa.php?id=<?= $d['id_desa'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus desa ini?')">
-                                    <i class="fas fa-trash"></i> Hapus
-                                </a>
-                            </td>
-                        </tr>
-                        <?php 
+                                ?>
+                                <tr>
+                                    <td><?= $no++ ?></td>
+                                    <td><?= htmlspecialchars($d['nama_desa']) ?></td>
+                                    <td>
+                                        <?php if ($d['latitude']) { ?>
+                                            <a href="https://www.google.com/maps/search/?api=1&query=<?= $d['latitude'] ?>,<?= $d['longitude'] ?>"
+                                                target="_blank" class="btn btn-info btn-sm" style="font-size:11px;">
+                                                <i class="fas fa-map-marker-alt"></i> Lihat Peta
+                                            </a>
+                                        <?php } else {
+                                            echo "-";
+                                        } ?>
+                                    </td>
+                                    <td>
+                                        <a href="edit_desa.php?id=<?= $d['id_desa'] ?>" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <a href="hapus_desa.php?id=<?= $d['id_desa'] ?>" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Yakin ingin menghapus desa ini?')">
+                                            <i class="fas fa-trash"></i> Hapus
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php
                             }
                         } else {
                             echo "<tr><td colspan='4' class='text-center'>Belum ada data desa. Silakan tambah data.</td></tr>";
