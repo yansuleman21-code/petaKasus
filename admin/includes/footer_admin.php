@@ -159,11 +159,16 @@
                         if (scriptContent) {
                             // Jalankan alert
                             eval(scriptContent.replace(/window\.location.*/, ""));
-                            // Muat ulang halaman index/kasus setelah simpan
-                            loadContent('../kasus.php');
+
+                            // Ambil URL tujuan dari script PHP (e.g. window.location='data_kasus.php')
+                            var match = scriptContent.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
+                            var targetUrl = match ? match[1] : 'data_kasus.php';
+
+                            // Muat ulang halaman tujuan
+                            loadContent(targetUrl);
                         } else {
-                            // Jika tidak ada script, muat ulang halaman dashboard default
-                            loadContent('index.php');
+                            // Jika tidak ada script, default ke data_kasus.php agar aman
+                            loadContent('data_kasus.php');
                         }
                     } else {
                         // Jika tidak ada redirect, ganti konten dengan hasil (misal error form)

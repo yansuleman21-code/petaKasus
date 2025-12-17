@@ -46,6 +46,7 @@ if (isset($_POST['update'])) {
         </div>
         <div class="card-body">
             <form method="POST" action="edit_kasus.php?id=<?= $id ?>">
+                <input type="hidden" name="id" value="<?= $id ?>">
                 <div class="form-group">
                     <label>Judul Kasus</label>
                     <input type="text" name="judul" class="form-control" value="<?= $data['judul_kasus'] ?>" required>
