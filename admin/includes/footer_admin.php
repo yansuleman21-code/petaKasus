@@ -91,8 +91,8 @@
                 url: url,
                 type: 'GET',
                 success: function (response) {
-                    // Ambil hanya bagian .container-fluid dari halaman tujuan
-                    var newContent = $(response).find('.container-fluid').html();
+                    // Ambil hanya bagian .container-fluid dari halaman tujuan (extra wrapper untuk handle top-level element)
+                    var newContent = $('<div>').html(response).find('.container-fluid').html();
 
                     if (!newContent) {
                         // Jika tidak ada container-fluid (misal halaman login/error), redirect biasa

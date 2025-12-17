@@ -19,16 +19,10 @@
     <div class="sidebar-heading">Perkara & Laporan</div>
 
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseKasus">
+        <a class="nav-link" href="data_kasus.php">
             <i class="fas fa-fw fa-folder-open"></i>
-            <span>Data Perkara</span>
+            <span>Kelola Perkara Baru</span>
         </a>
-        <div id="collapseKasus" class="collapse" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <a class="collapse-item" href="data_kasus.php">Kelola Data Perkara</a>
-                <a class="collapse-item" href="tambah_kasus.php">Tambah Perkara Baru</a>
-            </div>
-        </div>
     </li>
 
     <li class="nav-item">
@@ -49,6 +43,13 @@
         </a>
     </li>
 
+    <li class="nav-item">
+        <a class="nav-link" href="../index.php" target="_blank">
+            <i class="fas fa-fw fa-globe"></i>
+            <span>Lihat Website</span>
+        </a>
+    </li>
+
     <hr class="sidebar-divider d-none d-md-block">
 
     <li class="nav-item">
@@ -65,7 +66,7 @@
 
 <div id="content-wrapper" class="d-flex flex-column">
     <div id="content">
-        
+
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
             <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                 <i class="fa fa-bars"></i>

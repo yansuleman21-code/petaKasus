@@ -13,16 +13,16 @@ $query = mysqli_query($koneksi, "SELECT * FROM kasus WHERE id_kasus = '$id'");
 $data = mysqli_fetch_assoc($query);
 
 if (isset($_POST['update'])) {
-    $judul      = $_POST['judul'];
-    $jenis      = $_POST['jenis'];
-    $desa       = $_POST['desa'];
-    $tanggal    = $_POST['tanggal'];
-    $wilayah    = $_POST['wilayah'];
-    $instansi   = $_POST['instansi'];
-    $status     = $_POST['status'];
-    $lat        = $_POST['latitude'];
-    $long       = $_POST['longitude'];
-    $deskripsi  = mysqli_real_escape_string($koneksi, $_POST['deskripsi']);
+    $judul = mysqli_real_escape_string($koneksi, $_POST['judul']);
+    $jenis = mysqli_real_escape_string($koneksi, $_POST['jenis']);
+    $desa = mysqli_real_escape_string($koneksi, $_POST['desa']);
+    $tanggal = mysqli_real_escape_string($koneksi, $_POST['tanggal']);
+    $wilayah = mysqli_real_escape_string($koneksi, $_POST['wilayah']);
+    $instansi = mysqli_real_escape_string($koneksi, $_POST['instansi']);
+    $status = mysqli_real_escape_string($koneksi, $_POST['status']);
+    $lat = mysqli_real_escape_string($koneksi, $_POST['latitude']);
+    $long = mysqli_real_escape_string($koneksi, $_POST['longitude']);
+    $deskripsi = mysqli_real_escape_string($koneksi, $_POST['deskripsi']);
 
     $update = mysqli_query($koneksi, "UPDATE kasus SET 
         judul_kasus='$judul', jenis_kasus='$jenis', desa_kasus='$desa', 
@@ -34,7 +34,7 @@ if (isset($_POST['update'])) {
     if ($update) {
         echo "<script>alert('Data berhasil diupdate!'); window.location='data_kasus.php';</script>";
     } else {
-        echo "<script>alert('Gagal update data');</script>";
+        echo "<script>alert('Gagal update data: " . mysqli_error($koneksi) . "');</script>";
     }
 }
 ?>
@@ -45,7 +45,7 @@ if (isset($_POST['update'])) {
             <h6 class="m-0 font-weight-bold text-warning">Edit Data Kasus</h6>
         </div>
         <div class="card-body">
-            <form method="POST">
+            <form method="POST" action="edit_kasus.php?id=<?= $id ?>">
                 <div class="form-group">
                     <label>Judul Kasus</label>
                     <input type="text" name="judul" class="form-control" value="<?= $data['judul_kasus'] ?>" required>
@@ -56,7 +56,8 @@ if (isset($_POST['update'])) {
                         <div class="form-group">
                             <label>Jenis Kasus</label>
                             <select name="jenis" class="form-control">
-                                <option value="<?= $data['jenis_kasus'] ?>" selected><?= $data['jenis_kasus'] ?> (Saat ini)</option>
+                                <option value="<?= $data['jenis_kasus'] ?>" selected><?= $data['jenis_kasus'] ?> (Saat
+                                    ini)</option>
                                 <option value="Pidana Umum">Pidana Umum</option>
                                 <option value="Pidana Khusus">Pidana Khusus</option>
                                 <option value="Perdata">Perdata</option>
@@ -68,7 +69,8 @@ if (isset($_POST['update'])) {
                         <div class="form-group">
                             <label>Status Kasus</label>
                             <select name="status" class="form-control">
-                                <option value="<?= $data['status_kasus'] ?>" selected><?= $data['status_kasus'] ?> (Saat ini)</option>
+                                <option value="<?= $data['status_kasus'] ?>" selected><?= $data['status_kasus'] ?> (Saat
+                                    ini)</option>
                                 <option value="Dalam Proses">Dalam Proses</option>
                                 <option value="Selesai">Selesai</option>
                                 <option value="Ditolak">Ditolak</option>
@@ -87,10 +89,16 @@ if (isset($_POST['update'])) {
                                 $q_desa = mysqli_query($koneksi, "SELECT * FROM desa");
                                 while ($d = mysqli_fetch_assoc($q_desa)) {
                                     $selected = ($d['id_desa'] == $data['desa_kasus']) ? 'selected' : '';
-                                    echo "<option value='".$d['id_desa']."' $selected>".$d['nama_desa']."</option>";
+                                    echo "<option value='" . $d['id_desa'] . "' $selected>" . $d['nama_desa'] . "</option>";
                                 }
                                 ?>
                             </select>
+                            <div class="mt-2">
+                                <a href="https://www.google.com/maps/search/?api=1&query=<?= $data['latitude'] ?>,<?= $data['longitude'] ?>"
+                                    target="_blank" class="btn btn-sm btn-info btn-block">
+                                    <i class="fas fa-map-marked-alt"></i> Lihat Lokasi di Google Maps
+                                </a>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -109,13 +117,13 @@ if (isset($_POST['update'])) {
                         </div>
                     </div>
                     <div class="col-md-4">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Lat</label>
                             <input type="text" name="latitude" class="form-control" value="<?= $data['latitude'] ?>">
                         </div>
                     </div>
                     <div class="col-md-4">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Long</label>
                             <input type="text" name="longitude" class="form-control" value="<?= $data['longitude'] ?>">
                         </div>

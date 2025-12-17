@@ -12,8 +12,8 @@ $id = $_GET['id'];
 
 // 1. PROSES UPDATE JIKA ADA POST
 if (isset($_POST['proses'])) {
-    $status = $_POST['status'];
-    $desa = $_POST['desa'];
+    $status = mysqli_real_escape_string($koneksi, $_POST['status']);
+    $desa = mysqli_real_escape_string($koneksi, $_POST['desa']);
     $catatan_baru = mysqli_real_escape_string($koneksi, $_POST['catatan']);
 
     // Ambil deskripsi lama dulu untuk diappend
@@ -37,7 +37,8 @@ if (isset($_POST['proses'])) {
         if (mysqli_affected_rows($koneksi) > 0) {
             echo "<script>alert('BERHASIL! Status berubah menjadi: $status'); window.location='data_kasus.php';</script>";
         } else {
-            echo "<script>alert('Data disimpan, tetapi tidak ada perubahan yang terdeteksi (Mungkin data sama).'); window.location='data_kasus.php';</script>";
+            // Jika tidak ada perubahan baris, bisa jadi data sama atau error lain, tapi query sukses jalan
+            echo "<script>alert('Update Berhasil (Data tidak berubah atau sama).'); window.location='data_kasus.php';</script>";
         }
     } else {
         $err = mysqli_error($koneksi);
@@ -95,12 +96,13 @@ if (!$data) {
                     <h6 class="m-0 font-weight-bold text-white">Form Update</h6>
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" action="proses_kasus.php?id=<?= $id ?>">
                         <div class="form-group">
                             <label class="font-weight-bold text-danger">PILIH STATUS BARU:</label>
                             <select name="status" class="form-control form-control-lg border-danger">
                                 <option value="<?= $data['status_kasus'] ?>" selected hidden>--
-                                    <?= $data['status_kasus'] ?> --</option>
+                                    <?= $data['status_kasus'] ?> --
+                                </option>
                                 <option value="Dalam Proses">Dalam Proses</option>
                                 <option value="P21">P21</option>
                                 <option value="Tahap 2">Tahap 2</option>
@@ -121,6 +123,12 @@ if (!$data) {
                                 }
                                 ?>
                             </select>
+                            <div class="mt-2">
+                                <a href="https://www.google.com/maps/search/?api=1&query=<?= $data['latitude'] ?>,<?= $data['longitude'] ?>"
+                                    target="_blank" class="btn btn-sm btn-info btn-block">
+                                    <i class="fas fa-map-marked-alt"></i> Lihat Lokasi di Google Maps
+                                </a>
+                            </div>
                         </div>
 
                         <div class="form-group">

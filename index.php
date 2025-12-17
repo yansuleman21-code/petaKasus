@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peta Sebaran Kasus - Kabupaten Gorontalo</title>
+    <title>Peta Kasus - Kabupaten Gorontalo</title>
 
     <link rel="icon" type="image/png" href="assets/img/logo.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -386,25 +386,25 @@
                     e.target.setStyle({ weight: 2, color: '#333', fillOpacity: 1 });
                 },
                 mouseout: function (e) { geoJsonLayer.resetStyle(e.target); },
-                click: function(e) {
-                    var nama = e.target.feature.properties.nama_unik; 
+                click: function (e) {
+                    var nama = e.target.feature.properties.nama_unik;
                     var namaAsli = e.target.feature.properties.nm_kelurahan.toUpperCase();
-                    
+
                     // Fallback logic
                     var data = dataDesaDB[nama] || dataDesaDB[namaAsli];
-                    
+
                     $('#detailPanel').show();
-                    $('#namaWilayah').text(e.target.feature.properties.nm_kelurahan); 
+                    $('#namaWilayah').text(e.target.feature.properties.nm_kelurahan);
 
                     // Reset Default
-                    $('#valTotal').text('0'); 
-                    $('#valPidum').text('0'); 
-                    $('#valPidsus').text('0'); 
+                    $('#valTotal').text('0');
+                    $('#valPidum').text('0');
+                    $('#valPidsus').text('0');
                     $('#valNarkotika').text('0');
-                    $('#valPerdata').text('0'); 
+                    $('#valPerdata').text('0');
                     $('#linkDetail').hide();
 
-                    if(data) {
+                    if (data) {
                         $('#valTotal').text(data.total);
                         $('#valPidum').text(data.pidum);
                         $('#valPidsus').text(data.pidsus);

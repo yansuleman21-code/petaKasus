@@ -32,10 +32,10 @@ if (isset($_GET['id'])) {
                    VALUES ('$judul', '$kategori', '$deskripsi', '$tanggal', '$status', '$lat', '$long', '$instansi', '$wilayah', '$id_desa_default')";
 
         if (mysqli_query($koneksi, $insert)) {
+            $new_case_id = mysqli_insert_id($koneksi);
+
             // 3. Update status laporan jadi Diverifikasi
             mysqli_query($koneksi, "UPDATE laporan_masyarakat SET status = 'Diverifikasi' WHERE id_laporan = '$id'");
-
-            $new_case_id = mysqli_insert_id($koneksi);
 
             echo "<script>alert('Laporan berhasil diverifikasi! Silakan perbaiki Lokasi Desa pada halaman berikut.'); window.location='proses_kasus.php?id=$new_case_id';</script>";
         } else {

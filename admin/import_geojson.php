@@ -34,7 +34,7 @@ foreach ($data['features'] as $feature) {
     // Ambil Nama Desa
     $nama_asal = strtoupper(trim($feature['properties']['nm_kelurahan']));
     $nama_clean = mysqli_real_escape_string($koneksi, $nama_asal);
-    
+
     // Hitung Titik Tengah
     $coords = [];
     $type = $feature['geometry']['type'];
@@ -44,30 +44,34 @@ foreach ($data['features'] as $feature) {
         $coords = $feature['geometry']['coordinates'][0][0];
     }
 
-    $total_lat = 0; $total_lng = 0; $count_points = 0;
+    $total_lat = 0;
+    $total_lng = 0;
+    $count_points = 0;
     if (!empty($coords)) {
         foreach ($coords as $point) {
-            $total_lng += $point[0]; 
-            $total_lat += $point[1]; 
+            $total_lng += $point[0];
+            $total_lat += $point[1];
             $count_points++;
         }
         $avg_lat = $total_lat / $count_points;
         $avg_lng = $total_lng / $count_points;
     } else {
-        $avg_lat = 0; $avg_lng = 0;
+        $avg_lat = 0;
+        $avg_lng = 0;
     }
 
     // 2. CEK APAKAH NAMA INI SUDAH ADA DI DB?
     // Kita gunakan loop untuk mengecek nama_desa, nama_desa (2), nama_desa (3), dst.
     $nama_final = $nama_clean;
     $counter = 1;
-    
-    while(true) {
+
+    while (true) {
         $cek = mysqli_query($koneksi, "SELECT id_desa FROM desa WHERE nama_desa = '$nama_final'");
         if (mysqli_num_rows($cek) > 0) {
             // Jika ada, tambah counter
             $counter++;
-            $nama_final = "$nama_clean (Bagian $counter)";
+            $suffix = $counter - 1;
+            $nama_final = "$nama_clean $suffix";
         } else {
             // Jika belum ada, gunakan nama ini
             break;
@@ -77,7 +81,7 @@ foreach ($data['features'] as $feature) {
     // 3. INSERT (SELALU INSERT, TIDAK ADA UPDATE)
     $query = "INSERT INTO desa (nama_desa, latitude, longitude, deskripsi) 
               VALUES ('$nama_final', '$avg_lat', '$avg_lng', 'Diimpor dari GeoJSON')";
-    
+
     if (mysqli_query($koneksi, $query)) {
         // Tampilkan pesan hanya jika itu data duplikat yang diberi nomor
         if ($counter > 1) {

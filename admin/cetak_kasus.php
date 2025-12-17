@@ -7,6 +7,7 @@ include 'koneksi.php';
 <head>
     <meta charset="UTF-8">
     <title>Laporan Data Perkara - Kejaksaan Negeri</title>
+    <link rel="icon" type="image/png" href="../assets/img/logo.png">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -93,7 +94,7 @@ include 'koneksi.php';
 
     <div class="header">
         <!-- Logo Kejaksaan (Placeholder) -->
-        <!-- <img src="../assets/img/logo.png" alt="Logo"> -->
+        <img src="../assets/img/logo.png" alt="Logo">
         <h2>KEJAKSAAN NEGERI KABUPATEN GORONTALO</h2>
         <h3>LAPORAN DATA PERKARA TIPIKOR & PIDUM</h3>
         <p>Alamat: Jl. Ahmad A. Wahab, Limboto, Gorontalo</p>
@@ -136,7 +137,7 @@ include 'koneksi.php';
                         <td><?= $row['nama_desa'] ?></td>
                         <td style="text-align:center;"><?= $row['status_kasus'] ?></td>
                     </tr>
-                <?php
+                    <?php
                 }
             } else {
                 echo "<tr><td colspan='6' style='text-align:center'>Tidak ada data perkara.</td></tr>";
